@@ -34,6 +34,7 @@ public class RefreshTokenModel {
 	private Instant expiresAt;
 	@Column(nullable = false, updatable = false)
 	private boolean revoked;
+	private String replacedByToken;
 
 	public UUID getId() {
 		return id;
@@ -82,5 +83,20 @@ public class RefreshTokenModel {
 	public void setExpiresAt(Instant expiresAt) {
 		this.expiresAt = expiresAt;
 	}
+
+	public String getReplacedByToken() {
+		return replacedByToken;
+	}
+
+	public void setReplacedByToken(String replacedByToken) {
+		this.replacedByToken = replacedByToken;
+	}
+
+	public void ifPresent(Object object) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
 
 }

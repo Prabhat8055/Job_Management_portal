@@ -47,7 +47,7 @@ public class JwtService {
 		List<String> roles = user.getRoles() == null ? List.of() : user.getRoles().stream().map(Role::getName).toList();
 		return Jwts.builder().id(UUID.randomUUID().toString()).subject(user.getId().toString()).issuer(issuer)
 				.issuedAt(Date.from(now)).expiration(Date.from(now.plusSeconds(accessTtlSeconds)))
-				.claims(Map.of("email", user.getEmail(), "roles", roles, "type", "access"))
+				.claims(Map.of("email", user.getEmail(), "roles", roles, "typ", "access"))
 				.signWith(key, io.jsonwebtoken.SignatureAlgorithm.HS512).compact();
 	}
 
@@ -70,12 +70,12 @@ public class JwtService {
 
 	public boolean isAccessToken(String token) {
 		Claims c = parse(token).getPayload();
-		return "access".equals(c.get("type"));
+		return "access".equals(c.get("typ"));
 	}
 
 	public boolean isRefreshToken(String token) {
 		Claims c = parse(token).getPayload();
-		return "refresh".equals(c.get("type"));
+		return "refresh".equals(c.get("typ"));
 	}
 
 	public UUID getUserId(String token) {
