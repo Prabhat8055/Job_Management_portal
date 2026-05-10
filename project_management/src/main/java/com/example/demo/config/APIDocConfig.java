@@ -19,7 +19,8 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 							url = "https://portfolio-react-bits-so4n.vercel.app/",
 							email ="prabhatbhasme@gmail.com"
 						),
-						version ="1.0"
+						version ="1.0",
+						summary = "Backend Completed"
 				
 				),
 		security = {
