@@ -1,11 +1,9 @@
-import { Button } from "@/components/ui/button";
+import HomePage from "./components/home/HomePage";
 
 function App() {
   return (
-    <div className="text-2xl">
-      Hello Job Tracking app
-      <br />
-      <Button variant={ "destructive"}>Click me</Button>
+    <div className="h-100 w-full">
+      <HomePage />
     </div>
   );
 }
