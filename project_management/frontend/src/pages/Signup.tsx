@@ -3,8 +3,70 @@ import { Briefcase, Mail, LockKeyhole, User, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { useState, type FormEvent } from "react";
+import toast from "react-hot-toast";
+
+import type RegisterData from "@/model/RegisterData";
+
+import { registerUser } from "@/services/AuthService";
+import { useNavigate } from "react-router";
 
 const Signup = () => {
+  const [data, setData] = useState<RegisterData>({
+    name: "",
+    email: "",
+    password: "",
+  });
+
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState(null);
+
+  const navigate = useNavigate();
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // console.log(event.target.name);
+    // console.log(event.target.value);
+    setData((value) => ({
+      ...value,
+      [event.target.name]: event.target.value,
+    }));
+  };
+
+  const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    console.log(data);
+
+    //validations
+    if (data.name.trim() === "") {
+      toast.error("Name is required");
+      return;
+    }
+    if (data.email.trim() === "") {
+      toast.error("Email is required");
+      return;
+    }
+    if (data.password.trim() === "") {
+      toast.error("Password is required");
+      return;
+    }
+
+    //form submit for registration
+    try {
+      const result = await registerUser(data);
+      toast.success("User Registered Successfully");
+
+      setData({
+        name: "",
+        email: "",
+        password: "",
+      });
+
+      navigate("/login");
+    } catch (error) {
+      console.log(error);
+      toast.error("Error registering the user..");
+    }
+  };
   return (
     <div className="relative min-h-screen overflow-hidden bg-linear-to-br from-slate-100 via-white to-slate-200 dark:from-[#060816] dark:via-[#0B0F19] dark:to-[#111827]">
       {/* Background Glow */}
@@ -35,7 +97,7 @@ const Signup = () => {
             </div>
 
             {/* Form */}
-            <form className="space-y-5">
+            <form className="space-y-5" onSubmit={handleFormSubmit}>
               {/* Name */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-700 dark:text-gray-300">
@@ -49,6 +111,9 @@ const Signup = () => {
                     type="text"
                     placeholder="Enter your name"
                     className="h-12 rounded-2xl border-black/10 bg-black/5 pl-11 dark:border-white/10 dark:bg-white/5"
+                    name="name"
+                    value={data.name}
+                    onChange={handleInputChange}
                   />
                 </div>
               </div>
@@ -66,6 +131,9 @@ const Signup = () => {
                     type="email"
                     placeholder="Enter your email"
                     className="h-12 rounded-2xl border-black/10 bg-black/5 pl-11 dark:border-white/10 dark:bg-white/5"
+                    name="email"
+                    value={data.email}
+                    onChange={handleInputChange}
                   />
                 </div>
               </div>
@@ -83,12 +151,18 @@ const Signup = () => {
                     type="password"
                     placeholder="Create a password"
                     className="h-12 rounded-2xl border-black/10 bg-black/5 pl-11 dark:border-white/10 dark:bg-white/5"
+                    name="password"
+                    value={data.password}
+                    onChange={handleInputChange}
                   />
                 </div>
               </div>
 
               {/* Signup Button */}
-              <Button className="h-12 w-full rounded-2xl bg-cyan-400 text-base font-semibold text-black hover:bg-cyan-300">
+              <Button
+                className="h-12 w-full rounded-2xl bg-cyan-400 text-base font-semibold text-black hover:bg-cyan-300"
+                type="submit"
+              >
                 Create Account
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
