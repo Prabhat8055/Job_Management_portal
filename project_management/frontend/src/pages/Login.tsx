@@ -17,6 +17,7 @@ import { Alert, AlertTitle } from "@/components/ui/alert";
 import axios from "axios";
 import { Spinner } from "@/components/ui/spinner";
 import { useNavigate } from "react-router";
+import useAuth from "@/auth/store";
 
 const Login = () => {
   const [loginData, setLoginData] = useState<LoginData>({
@@ -26,7 +27,9 @@ const Login = () => {
 
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+
   const navigate = useNavigate();
+  const login = useAuth((state) => state.login);
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setLoginData({
       ...loginData,
@@ -49,14 +52,19 @@ const Login = () => {
     }
     try {
       setLoading(true);
-      await loginUser(loginData);
+      // await loginUser(loginData);
 
+      //loginAuth
+      const userInfo = await login(loginData);
+      toast.success("Login success");
+      console.log(userInfo);
+      
       setLoginData({
         email: "",
         password: "",
       });
 
-      navigate("/jobtracking")
+      navigate("/jobtracking");
     } catch (error) {
       if (axios.isAxiosError(error)) {
         setError(error.response?.data?.message || "Something went wrong");
