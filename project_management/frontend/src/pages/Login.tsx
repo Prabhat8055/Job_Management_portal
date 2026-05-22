@@ -58,13 +58,13 @@ const Login = () => {
       const userInfo = await login(loginData);
       toast.success("Login success");
       console.log(userInfo);
-      
+
       setLoginData({
         email: "",
         password: "",
       });
 
-      navigate("/jobtracking");
+      navigate("/dashboard");
     } catch (error) {
       if (axios.isAxiosError(error)) {
         setError(error.response?.data?.message || "Something went wrong");

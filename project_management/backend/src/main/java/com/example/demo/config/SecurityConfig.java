@@ -40,8 +40,7 @@ public class SecurityConfig {
 
 		http.csrf(csrf -> csrf.disable()).cors(Customizer.withDefaults())
 				.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.authorizeHttpRequests(auth -> auth.requestMatchers(AppConstants.AUTH_PUBLIC_URLS).permitAll() // 🔥
-																												// important
+				.authorizeHttpRequests(auth -> auth.requestMatchers(AppConstants.AUTH_PUBLIC_URLS).permitAll() // 🔥																			// important
 						.anyRequest().authenticated())
 				// OAuth2 configuration
 				.oauth2Login(oauth2 -> oauth2.successHandler(successHandler).failureHandler(null))
