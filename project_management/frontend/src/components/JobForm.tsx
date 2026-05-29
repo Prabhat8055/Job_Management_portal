@@ -11,7 +11,11 @@ import Stack from "@mui/material/Stack";
 
 import type { ChangeEvent, FormEvent } from "react";
 
-import type { JobFormData, JobFormProps } from "@/services/FormService";
+import {
+  postData,
+  type JobFormData,
+  type JobFormProps,
+} from "@/services/FormService";
 /* -------------------------------------------------------------------------- */
 /*                                   TYPES                                    */
 /* -------------------------------------------------------------------------- */
@@ -74,9 +78,9 @@ const JobForm: React.FC<JobFormProps> = ({ onSuccess }) => {
     e.preventDefault();
 
     try {
-      //   const resp = await postData(data);
+      const resp = await postData(data);
 
-      //   console.log("response successful", resp);
+      console.log("response successful", resp);
 
       onSuccess();
 

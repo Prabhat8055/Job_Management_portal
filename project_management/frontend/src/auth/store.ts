@@ -18,6 +18,12 @@ export type AuthState = {
   login: (loginData: LoginData) => Promise<LoginResponseData>;
   logout: (options?: { silent?: boolean }) => void;
   checkLogin: () => boolean | undefined;
+
+  changeLocalLoginData: (
+    accessToken: string,
+    user: User,
+    authStatus: boolean,
+  ) => void;
 };
 
 //main logic for global state
@@ -69,7 +75,16 @@ const useAuth = create<AuthState>()(
         if (get().accessToken && get().authStatus) return true;
         else return false;
       },
+
+      changeLocalLoginData: (accessToken, user, authStatus) => {
+        set({
+          accessToken,
+          user,
+          authStatus,
+        });
+      },
     }),
+
     { name: LOCAL_KEY },
   ),
 );
