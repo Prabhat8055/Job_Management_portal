@@ -10,6 +10,7 @@ import type RegisterData from "@/model/RegisterData";
 
 import { registerUser } from "@/services/AuthService";
 import { useNavigate } from "react-router";
+import OAuth2Buttons from "@/components/ui/OAuth2Buttons";
 
 const Signup = () => {
   const [data, setData] = useState<RegisterData>({
@@ -179,17 +180,7 @@ const Signup = () => {
               </div>
 
               {/* Google Button */}
-              <Button
-                variant="outline"
-                className="h-12 w-full rounded-2xl border-black/10 bg-white/60 text-black hover:bg-slate-100 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
-              >
-                <img
-                  src="https://www.svgrepo.com/show/475656/google-color.svg"
-                  alt="google"
-                  className="mr-3 h-5 w-5"
-                />
-                Continue with Google
-              </Button>
+              <OAuth2Buttons />
             </form>
 
             {/* Bottom Text */}

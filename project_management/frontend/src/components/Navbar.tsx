@@ -77,10 +77,17 @@ const Navbar: React.FC = () => {
                 Login
               </NavLink>
 
-              <NavLink to="/signup">
-                <button className="rounded-xl bg-cyan-400 px-5 py-2 text-sm font-semibold text-black shadow-lg shadow-cyan-400/30 transition-all duration-200 hover:scale-105 hover:bg-cyan-300">
-                  Sign Up
-                </button>
+              <NavLink
+                to="/signup"
+                className={({ isActive }) =>
+                  `${navItemStyle} ${
+                    isActive
+                      ? "bg-cyan-400 text-black"
+                      : "text-black dark:text-white"
+                  }`
+                }
+              >
+                <button>Sign Up</button>
               </NavLink>
             </>
           )}

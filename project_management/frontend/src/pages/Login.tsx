@@ -10,14 +10,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import type LoginData from "@/model/LoginData";
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
-import { loginUser } from "@/services/AuthService";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import axios from "axios";
 import { Spinner } from "@/components/ui/spinner";
 import { useNavigate } from "react-router";
 import useAuth from "@/auth/store";
+import OAuth2Buttons from "@/components/ui/OAuth2Buttons";
 
 const Login = () => {
   const [loginData, setLoginData] = useState<LoginData>({
@@ -184,17 +184,7 @@ const Login = () => {
               </div>
 
               {/* Google Button */}
-              <Button
-                variant="outline"
-                className="h-12 w-full rounded-2xl border-black/10 bg-white/60 text-black hover:bg-slate-100 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
-              >
-                <img
-                  src="https://www.svgrepo.com/show/475656/google-color.svg"
-                  alt="google"
-                  className="mr-3 h-5 w-5"
-                />
-                Continue with Google
-              </Button>
+              <OAuth2Buttons />
             </form>
 
             <p className="mt-8 text-center text-sm text-slate-600 dark:text-gray-400">
