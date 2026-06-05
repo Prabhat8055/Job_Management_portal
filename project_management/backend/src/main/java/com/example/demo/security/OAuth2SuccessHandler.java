@@ -32,13 +32,10 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
 	@Autowired
 	UserRepository userRepo;
-
 	@Autowired
 	JwtService jwtService;
-	
 	@Autowired
 	RefreshTokenRepository refreshTokenRepo;
-
 	@Autowired
 	CookieService cookieService;
 	

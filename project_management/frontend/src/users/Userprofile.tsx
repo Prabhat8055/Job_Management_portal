@@ -1,487 +1,149 @@
-import { useEffect, useState } from "react";
-
+import { useState } from "react";
 import {
-  Avatar,
-  Box,
-  Button,
-  Chip,
-  CircularProgress,
-  Container,
-  Divider,
-  TextField,
-  Typography,
-} from "@mui/material";
-
-import {
-  Edit,
-  Trash2,
   Mail,
   CalendarDays,
   ShieldCheck,
+  Edit,
+  Trash2,
   Save,
   X,
+  User,
 } from "lucide-react";
-
 import useAuth from "@/auth/store";
 
 const Userprofile = () => {
-  const isDark = document.documentElement.classList.contains("dark");
-
-  /* ------------------------------------------------------------------------ */
-  /*                                   STATE                                  */
-  /* ------------------------------------------------------------------------ */
-
-  const [loading, setLoading] = useState<boolean>(false);
-
-  const [isEditing, setIsEditing] = useState<boolean>(false);
-
+  const user = useAuth((s) => s.user);
+  const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
+    name: user?.name || "",
+    email: user?.email || "",
   });
 
-  /* ------------------------------------------------------------------------ */
-  /*                               FETCH USER                                 */
-  /* ------------------------------------------------------------------------ */
-
-  const user = useAuth((state) => state.user);
-
-  /* ------------------------------------------------------------------------ */
-  /*                               UPDATE USER                                */
-  /* ------------------------------------------------------------------------ */
-
-  // const handleUpdate = async (): Promise<void> => {
-  //   try {
-  //     const response = await axios.put<User>(
-  //       "http://localhost:8083/api/v1/user/update",
-  //       formData,
-  //       {
-  //         withCredentials: true,
-  //       },
-  //     );
-
-  //     setUser(response.data);
-
-  //     setIsEditing(false);
-
-  //     alert("Profile updated successfully");
-  //   } catch (error) {
-  //     console.error("Update error:", error);
-  //     alert("Failed to update profile");
-  //   }
-  // };
-
-  /* ------------------------------------------------------------------------ */
-  /*                               DELETE USER                                */
-  /* ------------------------------------------------------------------------ */
-
-  // const handleDelete = async (): Promise<void> => {
-  //   const confirmDelete = window.confirm(
-  //     "Are you sure you want to delete your account?",
-  //   );
-
-  //   if (!confirmDelete) return;
-
-  //   try {
-  //     await axios.delete("http://localhost:8083/api/v1/user/delete", {
-  //       withCredentials: true,
-  //     });
-
-  //     alert("Account deleted successfully");
-
-  //     window.location.href = "/";
-  //   } catch (error) {
-  //     console.error("Delete error:", error);
-  //     alert("Failed to delete account");
-  //   }
-  // };
-
-  /* ------------------------------------------------------------------------ */
-  /*                                  LOADING                                 */
-  /* ------------------------------------------------------------------------ */
-
-  if (loading) {
-    return (
-      <Box
-        sx={{
-          minHeight: "100vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          background: isDark
-            ? "linear-gradient(to bottom right, #060816, #0B0F19, #111827)"
-            : "linear-gradient(to bottom right, #f1f5f9, #ffffff, #e2e8f0)",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  /* ------------------------------------------------------------------------ */
-  /*                                   UI                                     */
-  /* ------------------------------------------------------------------------ */
-
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        pt: "110px", // NAVBAR SPACE
-        pb: 4,
-        px: 2,
-        background: isDark
-          ? "linear-gradient(to bottom right, #060816, #0B0F19, #111827)"
-          : "linear-gradient(to bottom right, #f1f5f9, #ffffff, #e2e8f0)",
-        transition: "all 0.3s ease",
-      }}
-    >
-      <Container maxWidth="md">
-        {/* MAIN CARD */}
-        <Box
-          sx={{
-            borderRadius: "28px",
-            overflow: "hidden",
-            border: "1px solid",
-            borderColor: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
-            background: isDark
-              ? "rgba(255,255,255,0.05)"
-              : "rgba(255,255,255,0.75)",
-            backdropFilter: "blur(20px)",
-            boxShadow: isDark
-              ? "0 8px 30px rgba(0,0,0,0.35)"
-              : "0 8px 30px rgba(0,0,0,0.08)",
-            p: { xs: 3, md: 5 },
-          }}
-        >
-          {/* ---------------------------------------------------------------- */}
-          {/* TOP SECTION */}
-          {/* ---------------------------------------------------------------- */}
+    <div className="min-h-screen bg-[#f8fafc] pb-8 pt-[84px] dark:bg-[#050810]">
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute -top-40 -left-40 h-[400px] w-[400px] rounded-full bg-cyan-400/5 blur-[100px] dark:bg-cyan-500/8" />
+      </div>
 
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: {
-                xs: "column",
-                md: "row",
-              },
-              gap: 4,
-              alignItems: {
-                xs: "center",
-                md: "flex-start",
-              },
-            }}
-          >
-            {/* AVATAR */}
+      <div className="relative mx-auto max-w-2xl px-4">
+        <div className="rounded-3xl border border-slate-200/80 bg-white/80 p-6 shadow-xl backdrop-blur dark:border-white/[0.07] dark:bg-white/[0.04] md:p-8">
+          {/* Top section */}
+          <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start">
+            {/* Avatar */}
+            <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-500 text-4xl font-black text-black shadow-lg shadow-cyan-400/30">
+              {user?.name?.[0]?.toUpperCase() ?? <User size={36} />}
+            </div>
 
-            <Avatar
-              src={user?.image}
-              sx={{
-                width: 120,
-                height: 120,
-                fontSize: "42px",
-                fontWeight: 700,
-                background: "#06b6d4",
-                color: "#000",
-                boxShadow: "0 10px 25px rgba(6,182,212,0.35)",
-              }}
-            >
-              {user?.name?.charAt(0).toUpperCase()}
-            </Avatar>
-
-            {/* USER DETAILS */}
-
-            <Box sx={{ flex: 1, width: "100%" }}>
+            {/* Info */}
+            <div className="flex-1 text-center sm:text-left">
               {!isEditing ? (
                 <>
-                  {/* NAME */}
-
-                  <Typography
-                    variant="h4"
-                    sx={{
-                      fontWeight: 800,
-                      color: isDark ? "#fff" : "#111827",
-                      textAlign: {
-                        xs: "center",
-                        md: "left",
-                      },
-                    }}
-                  >
+                  <h2 className="text-2xl font-black text-slate-900 dark:text-white">
                     {user?.name || "Unnamed User"}
-                  </Typography>
-
-                  {/* EMAIL */}
-
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                      mt: 2,
-                      justifyContent: {
-                        xs: "center",
-                        md: "flex-start",
-                      },
-                    }}
-                  >
-                    <Mail size={16} />
-
-                    <Typography
-                      sx={{
-                        color: isDark ? "#9CA3AF" : "#4B5563",
-                      }}
+                  </h2>
+                  <div className="mt-2 flex items-center justify-center gap-2 text-sm text-slate-500 dark:text-slate-400 sm:justify-start">
+                    <Mail size={14} />
+                    {user?.email}
+                  </div>
+                  <div className="mt-3 flex flex-wrap justify-center gap-2 sm:justify-start">
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${user?.enable ? "bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-400" : "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400"}`}
                     >
-                      {user?.email}
-                    </Typography>
-                  </Box>
-
-                  {/* CHIPS */}
-
-                  <Box
-                    sx={{
-                      display: "flex",
-                      gap: 1,
-                      flexWrap: "wrap",
-                      mt: 3,
-                      justifyContent: {
-                        xs: "center",
-                        md: "flex-start",
-                      },
-                    }}
-                  >
-                    <Chip
-                      icon={<ShieldCheck size={16} />}
-                      label={user?.enable ? "Verified" : "Not Verified"}
-                      color={user?.enable ? "success" : "warning"}
-                    />
-
-                    <Chip
-                      label={`Provider: ${user?.provider}`}
-                      sx={{
-                        background: isDark
-                          ? "rgba(255,255,255,0.08)"
-                          : "rgba(0,0,0,0.06)",
-                        color: isDark ? "#fff" : "#111827",
-                      }}
-                    />
-                  </Box>
+                      <ShieldCheck size={12} />
+                      {user?.enable ? "Verified" : "Not Verified"}
+                    </span>
+                    <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 dark:bg-white/10 dark:text-slate-300">
+                      via {user?.provider || "email"}
+                    </span>
+                  </div>
                 </>
               ) : (
-                <>
-                  {/* EDIT FORM */}
-
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 3,
-                    }}
-                  >
-                    <TextField
-                      label="Full Name"
-                      value={formData.name}
-                      fullWidth
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          name: e.target.value,
-                        })
-                      }
-                    />
-
-                    <TextField
-                      label="Email"
-                      value={formData.email}
-                      fullWidth
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          email: e.target.value,
-                        })
-                      }
-                    />
-                  </Box>
-                </>
+                <div className="flex flex-col gap-3">
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
+                    className="rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 dark:border-white/10 dark:bg-white/5 dark:text-white"
+                    placeholder="Full name"
+                  />
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
+                    className="rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 dark:border-white/10 dark:bg-white/5 dark:text-white"
+                    placeholder="Email"
+                  />
+                </div>
               )}
-            </Box>
-          </Box>
+            </div>
+          </div>
 
-          {/* ---------------------------------------------------------------- */}
-          {/* DIVIDER */}
-          {/* ---------------------------------------------------------------- */}
+          {/* Divider */}
+          <div className="my-6 border-t border-slate-100 dark:border-white/8" />
 
-          <Divider
-            sx={{
-              my: 4,
-              borderColor: isDark
-                ? "rgba(255,255,255,0.08)"
-                : "rgba(0,0,0,0.08)",
-            }}
-          />
-
-          {/* ---------------------------------------------------------------- */}
-          {/* USER INFO */}
-          {/* ---------------------------------------------------------------- */}
-
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
-            }}
-          >
-            {/* CREATED */}
-
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-              }}
-            >
-              <CalendarDays size={18} />
-
-              <Typography>
+          {/* Dates */}
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+              <CalendarDays size={15} />
+              <span>
                 Joined:{" "}
                 {user?.createdAt
                   ? new Date(user.createdAt).toLocaleDateString()
                   : "N/A"}
-              </Typography>
-            </Box>
-
-            {/* UPDATED */}
-
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-              }}
-            >
-              <CalendarDays size={18} />
-
-              <Typography>
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+              <CalendarDays size={15} />
+              <span>
                 Updated:{" "}
                 {user?.updatedAt
                   ? new Date(user.updatedAt).toLocaleDateString()
                   : "N/A"}
-              </Typography>
-            </Box>
-          </Box>
+              </span>
+            </div>
+          </div>
 
-          {/* ---------------------------------------------------------------- */}
-          {/* DIVIDER */}
-          {/* ---------------------------------------------------------------- */}
+          {/* Divider */}
+          <div className="my-6 border-t border-slate-100 dark:border-white/8" />
 
-          <Divider
-            sx={{
-              my: 4,
-              borderColor: isDark
-                ? "rgba(255,255,255,0.08)"
-                : "rgba(0,0,0,0.08)",
-            }}
-          />
-
-          {/* ---------------------------------------------------------------- */}
-          {/* ACTION BUTTONS */}
-          {/* ---------------------------------------------------------------- */}
-
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              gap: 2,
-              flexDirection: {
-                xs: "column",
-                sm: "row",
-              },
-            }}
-          >
+          {/* Actions */}
+          <div className="flex flex-wrap justify-end gap-3">
             {!isEditing ? (
               <>
-                {/* EDIT */}
-
-                <Button
-                  startIcon={<Edit size={18} />}
-                  variant="contained"
+                <button
                   onClick={() => setIsEditing(true)}
-                  sx={{
-                    borderRadius: "14px",
-                    background: "#06b6d4",
-                    color: "#000",
-                    fontWeight: 700,
-                    py: 1.2,
-                    px: 3,
-                    textTransform: "none",
-                    "&:hover": {
-                      background: "#22d3ee",
-                    },
-                  }}
+                  className="flex items-center gap-2 rounded-xl bg-cyan-400 px-5 py-2.5 text-sm font-bold text-black transition hover:bg-cyan-300"
                 >
-                  Edit Profile
-                </Button>
-
-                {/* DELETE */}
-
-                <Button
-                  startIcon={<Trash2 size={18} />}
-                  variant="outlined"
-                  color="error"
-                  // onClick={handleDelete}
-                  sx={{
-                    borderRadius: "14px",
-                    py: 1.2,
-                    px: 3,
-                    textTransform: "none",
-                  }}
-                >
-                  Delete Account
-                </Button>
+                  <Edit size={15} /> Edit Profile
+                </button>
+                <button className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-5 py-2.5 text-sm font-medium text-red-500 transition hover:bg-red-100 dark:border-red-500/20 dark:bg-red-500/10">
+                  <Trash2 size={15} /> Delete Account
+                </button>
               </>
             ) : (
               <>
-                {/* SAVE */}
-
-                <Button
-                  startIcon={<Save size={18} />}
-                  variant="contained"
-                  // onClick={handleUpdate}
-                  sx={{
-                    borderRadius: "14px",
-                    background: "#06b6d4",
-                    color: "#000",
-                    fontWeight: 700,
-                    py: 1.2,
-                    px: 3,
-                    textTransform: "none",
-                    "&:hover": {
-                      background: "#22d3ee",
-                    },
-                  }}
-                >
-                  Save Changes
-                </Button>
-
-                {/* CANCEL */}
-
-                <Button
-                  startIcon={<X size={18} />}
-                  variant="outlined"
+                <button
                   onClick={() => setIsEditing(false)}
-                  sx={{
-                    borderRadius: "14px",
-                    py: 1.2,
-                    px: 3,
-                    textTransform: "none",
-                  }}
+                  className="flex items-center gap-2 rounded-xl bg-cyan-400 px-5 py-2.5 text-sm font-bold text-black transition hover:bg-cyan-300"
                 >
-                  Cancel
-                </Button>
+                  <Save size={15} /> Save Changes
+                </button>
+                <button
+                  onClick={() => setIsEditing(false)}
+                  className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-5 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-300"
+                >
+                  <X size={15} /> Cancel
+                </button>
               </>
             )}
-          </Box>
-        </Box>
-      </Container>
-    </Box>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

@@ -1,50 +1,85 @@
-import React, { useState } from "react";
-import { Menu, X, Moon, Briefcase } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Menu, X, Briefcase, Sun, Moon, LayoutDashboard } from "lucide-react";
 import { NavLink, useNavigate } from "react-router";
 import useAuth from "@/auth/store";
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [dark, setDark] = useState(() =>
+    document.documentElement.classList.contains("dark"),
+  );
+  const [scrolled, setScrolled] = useState(false);
 
   const navigate = useNavigate();
-  const checkLogin = useAuth((state) => state.checkLogin);
-  const user = useAuth((state) => state.user);
-  const logout = useAuth((state) => state.logout);
+  const checkLogin = useAuth((s) => s.checkLogin);
+  const user = useAuth((s) => s.user);
+  const logout = useAuth((s) => s.logout);
 
-  const navItemStyle =
-    "rounded-xl px-4 py-2 text-sm font-medium transition-all duration-200 hover:bg-black/5 dark:hover:bg-white/10";
+  // Toggle dark mode
+  const toggleDark = () => {
+    const next = !dark;
+    setDark(next);
+    document.documentElement.classList.toggle("dark", next);
+  };
+
+  // Shrink navbar on scroll
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const navLink =
+    "rounded-xl px-4 py-2 text-sm font-medium text-slate-600 transition-all duration-150 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white";
+  const activeLink = "bg-cyan-400/10 text-cyan-600 dark:text-cyan-300";
 
   return (
-    <nav className="fixed top-4 left-1/2 z-50 w-[95%] max-w-7xl -translate-x-1/2 rounded-2xl border border-white/20 bg-white/70 shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-black/40">
-      <div className="flex h-16 items-center justify-between px-5 md:px-8">
+    <nav
+      className={`fixed left-1/2 z-50 w-[95%] max-w-7xl -translate-x-1/2 rounded-2xl border transition-all duration-300 ${
+        scrolled
+          ? "top-3 border-slate-200/80 bg-white/95 shadow-lg shadow-slate-200/30 dark:border-white/10 dark:bg-black/80 dark:shadow-black/40"
+          : "top-4 border-white/40 bg-white/70 shadow-md dark:border-white/10 dark:bg-black/40"
+      } backdrop-blur-xl`}
+    >
+      <div className="flex h-[60px] items-center justify-between px-5 md:px-8">
         {/* Logo */}
-        <NavLink to="/" className="flex items-center gap-3">
-          <div className="rounded-xl bg-cyan-400 p-2 text-black shadow-lg shadow-cyan-400/30">
-            <Briefcase size={20} />
+        <NavLink to="/" className="flex items-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-400 shadow-md shadow-cyan-400/30 transition hover:scale-105">
+            <Briefcase size={18} className="text-black" />
           </div>
-
-          <h1 className="text-lg font-bold tracking-wide md:text-xl">
+          <span className="text-[17px] font-black tracking-tight text-slate-900 dark:text-white">
             Job<span className="text-cyan-500">Track</span>
-          </h1>
+          </span>
         </NavLink>
 
-        {/* Desktop Menu */}
-        <div className="hidden items-center gap-3 md:flex">
+        {/* Desktop */}
+        <div className="hidden items-center gap-2 md:flex">
           {checkLogin() ? (
             <>
-              <div
-                className="rounded-xl bg-black/5 px-4 py-2 text-sm font-medium dark:bg-white/10"
-                onClick={() => navigate("/dashboard/profile")}
+              <button
+                onClick={() => navigate("/dashboard")}
+                className={`${navLink} flex items-center gap-2`}
               >
+                <LayoutDashboard size={15} />
+                Dashboard
+              </button>
+
+              <button
+                onClick={() => navigate("/dashboard/profile")}
+                className="flex items-center gap-2 rounded-xl bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200 dark:bg-white/10 dark:text-slate-200 dark:hover:bg-white/20"
+              >
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-cyan-400 text-xs font-black text-black">
+                  {user?.name?.[0]?.toUpperCase() ?? "U"}
+                </div>
                 {user?.name}
-              </div>
+              </button>
 
               <button
                 onClick={() => {
                   logout();
                   navigate("/login");
                 }}
-                className="rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-500 transition hover:bg-red-500/20"
+                className="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-500 transition hover:bg-red-100 dark:border-red-500/20 dark:bg-red-500/10 dark:hover:bg-red-500/20"
               >
                 Logout
               </button>
@@ -54,78 +89,84 @@ const Navbar: React.FC = () => {
               <NavLink
                 to="/"
                 className={({ isActive }) =>
-                  `${navItemStyle} ${
-                    isActive
-                      ? "bg-cyan-400 text-black"
-                      : "text-black dark:text-white"
-                  }`
+                  `${navLink} ${isActive ? activeLink : ""}`
                 }
               >
                 Home
               </NavLink>
-
               <NavLink
                 to="/login"
                 className={({ isActive }) =>
-                  `${navItemStyle} ${
-                    isActive
-                      ? "bg-cyan-400 text-black"
-                      : "text-black dark:text-white"
-                  }`
+                  `${navLink} ${isActive ? activeLink : ""}`
                 }
               >
                 Login
               </NavLink>
-
               <NavLink
                 to="/signup"
-                className={({ isActive }) =>
-                  `${navItemStyle} ${
-                    isActive
-                      ? "bg-cyan-400 text-black"
-                      : "text-black dark:text-white"
-                  }`
-                }
+                className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-bold text-black shadow-sm shadow-cyan-400/20 transition hover:bg-cyan-300"
               >
-                <button>Sign Up</button>
+                Sign Up
               </NavLink>
             </>
           )}
 
-          {/* Theme Button */}
-          <button className="rounded-xl border border-black/10 bg-black/5 p-2 transition hover:bg-black/10 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10">
-            <Moon size={18} />
+          {/* Theme toggle */}
+          <button
+            onClick={toggleDark}
+            className="ml-1 flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-500 transition hover:bg-slate-100 dark:border-white/10 dark:bg-white/5 dark:text-slate-400 dark:hover:bg-white/10"
+          >
+            {dark ? <Sun size={16} /> : <Moon size={16} />}
           </button>
         </div>
 
-        {/* Mobile Toggle */}
-        <button
-          className="rounded-xl p-2 transition hover:bg-black/5 dark:hover:bg-white/10 md:hidden"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          {isOpen ? <X size={26} /> : <Menu size={26} />}
-        </button>
+        {/* Mobile toggle */}
+        <div className="flex items-center gap-2 md:hidden">
+          <button
+            onClick={toggleDark}
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-400"
+          >
+            {dark ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
+          <button
+            className="flex h-9 w-9 items-center justify-center rounded-xl transition hover:bg-black/5 dark:hover:bg-white/10"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            {isOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile menu */}
       <div
-        className={`overflow-hidden transition-all duration-300 md:hidden ${
-          isOpen ? "max-h-96 pb-5" : "max-h-0"
-        }`}
+        className={`overflow-hidden transition-all duration-300 md:hidden ${isOpen ? "max-h-80 pb-4" : "max-h-0"}`}
       >
-        <div className="flex flex-col gap-3 px-5">
+        <div className="flex flex-col gap-2 px-5 pt-1">
           {checkLogin() ? (
             <>
-              <div className="rounded-xl bg-black/5 px-4 py-3 text-sm font-medium dark:bg-white/10">
-                {user?.name}
+              <div className="flex items-center gap-2 rounded-xl bg-slate-100/80 px-4 py-3 dark:bg-white/10">
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-cyan-400 text-xs font-black text-black">
+                  {user?.name?.[0]?.toUpperCase() ?? "U"}
+                </div>
+                <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                  {user?.name}
+                </span>
               </div>
-
+              <button
+                onClick={() => {
+                  navigate("/dashboard");
+                  setIsOpen(false);
+                }}
+                className="flex items-center gap-2 rounded-xl px-4 py-3 text-left text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10"
+              >
+                <LayoutDashboard size={16} /> Dashboard
+              </button>
               <button
                 onClick={() => {
                   logout();
                   navigate("/login");
                 }}
-                className="rounded-xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-left text-sm font-medium text-red-500 transition hover:bg-red-500/20"
+                className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-left text-sm font-medium text-red-500 dark:border-red-500/20 dark:bg-red-500/10"
               >
                 Logout
               </button>
@@ -135,23 +176,27 @@ const Navbar: React.FC = () => {
               <NavLink
                 to="/"
                 onClick={() => setIsOpen(false)}
-                className={navItemStyle}
+                className={({ isActive }) =>
+                  `rounded-xl px-4 py-3 text-sm font-medium ${isActive ? "bg-cyan-400/10 text-cyan-600 dark:text-cyan-300" : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10"}`
+                }
               >
                 Home
               </NavLink>
-
               <NavLink
                 to="/login"
                 onClick={() => setIsOpen(false)}
-                className={navItemStyle}
+                className={({ isActive }) =>
+                  `rounded-xl px-4 py-3 text-sm font-medium ${isActive ? "bg-cyan-400/10 text-cyan-600 dark:text-cyan-300" : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10"}`
+                }
               >
                 Login
               </NavLink>
-
-              <NavLink to="/signup" onClick={() => setIsOpen(false)}>
-                <button className="w-full rounded-xl bg-cyan-400 px-4 py-3 font-semibold text-black shadow-lg shadow-cyan-400/30 transition hover:bg-cyan-300">
-                  Sign Up
-                </button>
+              <NavLink
+                to="/signup"
+                onClick={() => setIsOpen(false)}
+                className="rounded-xl bg-cyan-400 px-4 py-3 text-center text-sm font-bold text-black shadow-sm shadow-cyan-400/20 hover:bg-cyan-300"
+              >
+                Sign Up
               </NavLink>
             </>
           )}

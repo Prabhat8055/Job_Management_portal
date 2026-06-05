@@ -21,7 +21,7 @@ spring:
             client-secret: ${GOOGLE_CLIENT_SECRET:test-client-secret}
             scope:
               - email
-              - profile
+              - profile 
               - openid
 
 logging:
@@ -35,7 +35,7 @@ security:
     access-ttl-seconds: ${JWT_ACCESS_TTL_SECONDS:600}
     refresh-ttl-seconds: ${JWT_REFRESH_TTL_SECONDS:86400}
     refresh-token-cookie-name: ${JWT_REFRESH_COOKIE_NAME:refreshToken}
-    cookie-secure: ${JWT_COOKIE_SECURE:true}
+    cookie-secure: ${JWT_COOKIE_SECURE:false}
     cookie-http-only: ${JWT_COOKIE_HTTP_ONLY:true}
     cookie-same-site: ${JWT_COOKIE_SAME_SITE:lax}
     cookie-domain: ${JWT_COOKIE_DOMAIN:localhost}

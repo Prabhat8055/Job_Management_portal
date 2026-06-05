@@ -1,23 +1,16 @@
 import { useEffect, useState, useCallback } from "react";
-import { useParams } from "react-router-dom";
-//all in components
 import Box1 from "@/components/Box1";
 import JobForm from "@/components/JobForm";
 import List2 from "@/components/List2";
 import Table3 from "@/components/Table3";
-
 import {
   getData,
   deleteSelectedData,
   getDashboardStatus,
 } from "@/services/FormService";
-
-import { Typography, Grid, Divider, Box, Container } from "@mui/material";
 import useAuth from "@/auth/store";
-
-/* -------------------------------------------------------------------------- */
-/*                                   TYPES                                    */
-/* -------------------------------------------------------------------------- */
+import { Trash2, Pencil } from "lucide-react";
+import toast from "react-hot-toast";
 
 interface JobApplication {
   id: number;
@@ -50,295 +43,141 @@ interface DashboardStatus {
 }
 
 const Userhome = () => {
-  // Table rows
   const [rows, setRows] = useState<JobApplication[]>([]);
-
-  // Selected row id
   const [selectedId, setSelectedId] = useState<number | null>(null);
-
-  // Dashboard stats
   const [stats, setStats] = useState<DashboardStatus>({});
+  const [refreshKey, setRefreshKey] = useState(0);
+  const username = useAuth((s) => s.user?.name);
 
-  // Refresh state
-  const [refreshKey, setRefreshKey] = useState<number>(0);
-  /* ------------------------------------------------------------------------ */
-  /*                                FETCH DATA                                */
-  /* ------------------------------------------------------------------------ */
-
-  const fetchData = useCallback(async (): Promise<void> => {
+  const fetchData = useCallback(async () => {
     try {
       const data: ApiJobData[] = await getData();
-
-      const formattedRows: JobApplication[] = data.map((item) => ({
-        id: item.id,
-        company: item.companyName,
-        role: item.role,
-        type: item.jobType,
-        source: item.source,
-        date: new Date(item.appliedDate).toLocaleDateString(),
-        status: item.status,
-        notes: item.notes,
-      }));
-
-      setRows(formattedRows);
-    } catch (error) {
-      console.error("Error Fetching Table data", error);
+      setRows(
+        data.map((item) => ({
+          id: item.id,
+          company: item.companyName,
+          role: item.role,
+          type: item.jobType,
+          source: item.source,
+          date: new Date(item.appliedDate).toLocaleDateString(),
+          status: item.status,
+          notes: item.notes,
+        })),
+      );
+    } catch {
+      /* silently fail */
     }
   }, []);
 
-  /* ------------------------------------------------------------------------ */
-  /*                              FETCH STATS                                 */
-  /* ------------------------------------------------------------------------ */
-
-  const fetchStats = async (): Promise<void> => {
+  const fetchStats = async () => {
     try {
-      const data: DashboardStatus = await getDashboardStatus();
+      const data = await getDashboardStatus();
       setStats(data);
-    } catch (error) {
-      console.error("Error fetching dashboard stats", error);
+    } catch {
+      /* silently fail */
     }
   };
 
-  /* ------------------------------------------------------------------------ */
-  /*                              DELETE HANDLER                              */
-  /* ------------------------------------------------------------------------ */
-
-  const handleDelete = async (id: number | null): Promise<void> => {
+  const handleDelete = async (id: number | null) => {
     if (!id) return;
-
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this application?",
-    );
-
-    if (!confirmDelete) return;
-
+    if (!window.confirm("Delete this application?")) return;
     try {
       await deleteSelectedData(id);
-
-      refreshDashboard();
+      toast.success("Application deleted");
       setSelectedId(null);
-    } catch (error) {
-      console.error("Delete error:", error);
-      alert("Failed to delete data");
+      setRefreshKey((p) => p + 1);
+    } catch {
+      toast.error("Failed to delete");
     }
   };
-
-  /* ------------------------------------------------------------------------ */
-  /*                             REFRESH DASHBOARD                            */
-  /* ------------------------------------------------------------------------ */
-
-  const refreshDashboard = (): void => {
-    setRefreshKey((prev) => prev + 1);
-  };
-
-  /* ------------------------------------------------------------------------ */
-  /*                                USE EFFECT                                */
-  /* ------------------------------------------------------------------------ */
 
   useEffect(() => {
     fetchData();
     fetchStats();
   }, [refreshKey, fetchData]);
 
-  /* ------------------------------------------------------------------------ */
-  /*                                 PARAMS                                   */
-  /* ------------------------------------------------------------------------ */
+  const refreshDashboard = () => setRefreshKey((p) => p + 1);
 
-  const username = useAuth((state) => state.user?.name);
-
-  console.log(username);
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        background: document.documentElement.classList.contains("dark")
-          ? "linear-gradient(to bottom right, #060816, #0B0F19, #111827)"
-          : "linear-gradient(to bottom right, #f1f5f9, #ffffff, #e2e8f0)",
+    <div className="min-h-screen bg-[#f8fafc] pb-8 pt-[84px] dark:bg-[#050810]">
+      {/* Ambient */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute -top-40 -left-40 h-[400px] w-[400px] rounded-full bg-cyan-400/5 blur-[100px] dark:bg-cyan-500/8" />
+        <div className="absolute -bottom-40 -right-40 h-[400px] w-[400px] rounded-full bg-blue-400/5 blur-[100px] dark:bg-blue-600/8" />
+      </div>
 
-        pt: "110px",
-        pb: 4,
-        px: { xs: 2, md: 4 },
-        transition: "all 0.3s ease",
-      }}
-    >
-      <Container maxWidth="xl">
-        {/* TOP SECTION */}
-        <Box sx={{ mb: 3 }}>
+      <div className="relative mx-auto max-w-[1400px] px-4 md:px-6">
+        {/* Welcome */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+            {username
+              ? `Welcome back, ${username.split(" ")[0]} 👋`
+              : "Dashboard"}
+          </h1>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            Here's what's happening with your job search
+          </p>
+        </div>
+
+        {/* Stats */}
+        <div className="mb-5">
           <Box1 stats={stats} />
-        </Box>
+        </div>
 
-        {/* QUICK FILTERS / LIST */}
-        <Box sx={{ mb: 3 }}>
+        {/* Recent updates */}
+        <div className="mb-5">
           <List2 />
-        </Box>
+        </div>
 
-        {/* HEADER */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexWrap: "wrap",
-            gap: 2,
-            mb: 2,
-          }}
-        >
-          {/* TITLE */}
-          <Typography
-            sx={{
-              fontFamily: "Inter, sans-serif",
-              fontSize: "22px",
-              fontWeight: 700,
-              color: document.documentElement.classList.contains("dark")
-                ? "white"
-                : "black",
-            }}
-          >
+        {/* Table header */}
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">
             My Applications
-          </Typography>
-
-          {/* ACTION BUTTONS */}
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 2,
-            }}
-          >
-            {/* DELETE */}
-            <Box
-              component="button"
+          </h2>
+          <div className="flex gap-2">
+            <button
+              disabled={!selectedId}
+              onClick={() => toast("Edit coming soon!", { icon: "✏️" })}
+              className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-500 transition hover:border-slate-300 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/10 dark:bg-white/5 dark:text-slate-400 dark:hover:border-white/20"
+            >
+              <Pencil size={14} /> Edit
+            </button>
+            <button
               disabled={!selectedId}
               onClick={() => handleDelete(selectedId)}
-              sx={{
-                px: 2,
-                py: 1,
-                borderRadius: "12px",
-                border: "1px solid",
-                borderColor: "divider",
-                backgroundColor: document.documentElement.classList.contains(
-                  "dark",
-                )
-                  ? "rgba(255,255,255,0.04)"
-                  : "rgba(0,0,0,0.03)",
-                color: selectedId ? "#ef4444" : "text.disabled",
-                cursor: selectedId ? "pointer" : "not-allowed",
-                transition: "0.2s",
-                "&:hover": {
-                  backgroundColor:
-                    selectedId &&
-                    document.documentElement.classList.contains("dark")
-                      ? "rgba(239,68,68,0.12)"
-                      : selectedId
-                        ? "rgba(239,68,68,0.08)"
-                        : undefined,
-                },
-              }}
+              className="flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-50 px-3.5 py-2 text-sm font-medium text-red-500 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-red-500/20 dark:bg-red-500/10 dark:hover:bg-red-500/20"
             >
-              Delete
-            </Box>
+              <Trash2 size={14} /> Delete
+            </button>
+          </div>
+        </div>
 
-            {/* EDIT */}
-            <Box
-              component="button"
-              disabled={!selectedId}
-              onClick={() => handleDelete(selectedId)}
-              sx={{
-                px: 2,
-                py: 1,
-                borderRadius: "12px",
-                border: "1px solid",
-                borderColor: "divider",
-                backgroundColor: document.documentElement.classList.contains(
-                  "dark",
-                )
-                  ? "rgba(255,255,255,0.04)"
-                  : "rgba(0,0,0,0.03)",
-                color: selectedId ? "#22c55e" : "text.disabled",
-                cursor: selectedId ? "pointer" : "not-allowed",
-                transition: "0.2s",
-                "&:hover": {
-                  backgroundColor:
-                    selectedId &&
-                    document.documentElement.classList.contains("dark")
-                      ? "rgba(34,197,94,0.12)"
-                      : selectedId
-                        ? "rgba(34,197,94,0.08)"
-                        : undefined,
-                },
-              }}
-            >
-              Edit
-            </Box>
-          </Box>
-        </Box>
+        {/* Hint */}
+        {selectedId && (
+          <p className="mb-2 text-xs text-cyan-600 dark:text-cyan-400">
+            Row #{selectedId} selected — click again to deselect
+          </p>
+        )}
 
-        <Divider
-          sx={{
-            mb: 3,
-            borderColor: document.documentElement.classList.contains("dark")
-              ? "rgba(255,255,255,0.08)"
-              : "rgba(0,0,0,0.08)",
-          }}
-        />
+        {/* Main grid */}
+        <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
+          {/* Table */}
+          <div className="rounded-2xl border border-slate-200/80 bg-white/80 backdrop-blur-sm dark:border-white/[0.07] dark:bg-white/[0.04]">
+            <Table3
+              rows={rows}
+              selectedId={selectedId}
+              setSelectedId={setSelectedId}
+              onDeleteSuccess={refreshDashboard}
+            />
+          </div>
 
-        {/* MAIN CONTENT */}
-        <Grid container spacing={4}>
-          {/* TABLE */}
-          <Grid size={{ xs: 12, lg: 8 }}>
-            <Box
-              sx={{
-                borderRadius: "24px",
-                overflow: "hidden",
-                border: "1px solid",
-                borderColor: document.documentElement.classList.contains("dark")
-                  ? "rgba(255,255,255,0.08)"
-                  : "rgba(0,0,0,0.06)",
-                background: document.documentElement.classList.contains("dark")
-                  ? "rgba(255,255,255,0.04)"
-                  : "rgba(255,255,255,0.7)",
-                backdropFilter: "blur(20px)",
-                boxShadow: document.documentElement.classList.contains("dark")
-                  ? "0 8px 30px rgba(0,0,0,0.35)"
-                  : "0 8px 30px rgba(0,0,0,0.08)",
-              }}
-            >
-              <Table3
-                rows={rows}
-                selectedId={selectedId}
-                setSelectedId={setSelectedId}
-                onDeleteSuccess={refreshDashboard}
-              />
-            </Box>
-          </Grid>
-
-          {/* FORM */}
-          <Grid size={{ xs: 12, lg: 4 }}>
-            <Box
-              sx={{
-                position: { lg: "sticky" },
-                top: 110, // FIX FOR FLOATING NAVBAR
-                borderRadius: "24px",
-                border: "1px solid",
-                borderColor: document.documentElement.classList.contains("dark")
-                  ? "rgba(255,255,255,0.08)"
-                  : "rgba(0,0,0,0.06)",
-                background: document.documentElement.classList.contains("dark")
-                  ? "rgba(255,255,255,0.04)"
-                  : "rgba(255,255,255,0.7)",
-                backdropFilter: "blur(20px)",
-                boxShadow: document.documentElement.classList.contains("dark")
-                  ? "0 8px 30px rgba(0,0,0,0.35)"
-                  : "0 8px 30px rgba(0,0,0,0.08)",
-                p: 2,
-              }}
-            >
-              <JobForm onSuccess={refreshDashboard} />
-            </Box>
-          </Grid>
-        </Grid>
-      </Container>
-    </Box>
+          {/* Form */}
+          <div className="lg:sticky lg:top-[90px] self-start rounded-2xl border border-slate-200/80 bg-white/80 backdrop-blur-sm dark:border-white/[0.07] dark:bg-white/[0.04]">
+            <JobForm onSuccess={refreshDashboard} />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

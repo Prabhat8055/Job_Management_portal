@@ -1,16 +1,21 @@
-import { Briefcase, Mail, LockKeyhole, User, ArrowRight } from "lucide-react";
-
+import {
+  Briefcase,
+  Mail,
+  LockKeyhole,
+  User,
+  ArrowRight,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
-
 import type RegisterData from "@/model/RegisterData";
-
 import { registerUser } from "@/services/AuthService";
-import { useNavigate } from "react-router";
+import { useNavigate, NavLink } from "react-router";
 import OAuth2Buttons from "@/components/ui/OAuth2Buttons";
+import { Spinner } from "@/components/ui/spinner";
 
 const Signup = () => {
   const [data, setData] = useState<RegisterData>({
@@ -18,180 +23,180 @@ const Signup = () => {
     email: "",
     password: "",
   });
-
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState(null);
-
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // console.log(event.target.name);
-    // console.log(event.target.value);
-    setData((value) => ({
-      ...value,
-      [event.target.name]: event.target.value,
-    }));
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setData((v) => ({ ...v, [e.target.name]: e.target.value }));
   };
 
-  const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    console.log(data);
-
-    //validations
-    if (data.name.trim() === "") {
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!data.name.trim()) {
       toast.error("Name is required");
       return;
     }
-    if (data.email.trim() === "") {
+    if (!data.email.trim()) {
       toast.error("Email is required");
       return;
     }
-    if (data.password.trim() === "") {
+    if (!data.password.trim()) {
       toast.error("Password is required");
       return;
     }
-
-    //form submit for registration
+    if (data.password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
     try {
-      const result = await registerUser(data);
-      toast.success("User Registered Successfully");
-
-      setData({
-        name: "",
-        email: "",
-        password: "",
-      });
-
+      setLoading(true);
+      await registerUser(data);
+      toast.success("Account created! Please sign in.");
       navigate("/login");
-    } catch (error) {
-      console.log(error);
-      toast.error("Error registering the user..");
+    } catch {
+      toast.error("Registration failed. Email may already be in use.");
+    } finally {
+      setLoading(false);
     }
   };
+
   return (
-    <div className="relative min-h-screen overflow-hidden bg-linear-to-br from-slate-100 via-white to-slate-200 dark:from-[#060816] dark:via-[#0B0F19] dark:to-[#111827]">
-      {/* Background Glow */}
-      <div className="absolute -left-25 -top-25 h-75 w-75 rounded-full bg-cyan-400/20 blur-3xl dark:bg-cyan-500/20" />
+    <div className="relative min-h-screen overflow-hidden bg-[#f8fafc] dark:bg-[#050810]">
+      {/* Ambient blobs */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full bg-cyan-400/10 blur-[120px] dark:bg-cyan-500/10" />
+        <div className="absolute -bottom-40 -left-40 h-[500px] w-[500px] rounded-full bg-blue-400/10 blur-[120px] dark:bg-blue-600/10" />
+      </div>
 
-      <div className="absolute -bottom-25 -right-25 h-75 w-75 rounded-full bg-blue-400/20 blur-3xl dark:bg-blue-500/20" />
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.03] dark:opacity-[0.04]"
+        style={{
+          backgroundImage:
+            "linear-gradient(#6b7280 1px, transparent 1px), linear-gradient(90deg, #6b7280 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
+        }}
+      />
 
-      {/* Space For Navbar */}
-      <div className="h-24" />
+      <div className="h-20" />
 
-      {/* Signup Section */}
-      <div className="flex min-h-[calc(100vh-96px)] items-center justify-center px-6 pb-10">
-        <Card className="relative w-full max-w-md rounded-3xl border border-black/5 bg-white/70 shadow-2xl backdrop-blur-2xl dark:border-white/10 dark:bg-white/5">
-          <CardContent className="p-8">
-            {/* Logo */}
-            <div className="mb-8 flex flex-col items-center">
-              <div className="mb-4 rounded-2xl bg-cyan-400 p-3 text-black shadow-lg shadow-cyan-400/30">
-                <Briefcase size={28} />
-              </div>
-
-              <h1 className="text-3xl font-black tracking-tight text-black dark:text-white">
-                Create Account
-              </h1>
-
-              <p className="mt-2 text-center text-sm text-slate-600 dark:text-gray-400">
-                Start tracking your job applications in one place.
-              </p>
+      <div className="relative flex min-h-[calc(100vh-80px)] items-center justify-center px-4 pb-10">
+        <div className="w-full max-w-[420px]">
+          {/* Header */}
+          <div className="mb-8 text-center">
+            <div className="mb-5 inline-flex items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 to-cyan-500 p-3 shadow-lg shadow-cyan-400/30">
+              <Briefcase size={26} className="text-black" />
             </div>
+            <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+              Create account
+            </h1>
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+              Start tracking your job applications today
+            </p>
+          </div>
 
-            {/* Form */}
+          {/* Card */}
+          <div className="rounded-3xl border border-slate-200/80 bg-white/90 p-8 shadow-xl shadow-slate-200/50 backdrop-blur-xl dark:border-white/[0.07] dark:bg-white/[0.04] dark:shadow-none">
             <form className="space-y-5" onSubmit={handleFormSubmit}>
               {/* Name */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700 dark:text-gray-300">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                   Full Name
                 </label>
-
                 <div className="relative">
-                  <User className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-
+                  <User className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <Input
                     type="text"
-                    placeholder="Enter your name"
-                    className="h-12 rounded-2xl border-black/10 bg-black/5 pl-11 dark:border-white/10 dark:bg-white/5"
                     name="name"
+                    placeholder="Your full name"
                     value={data.name}
                     onChange={handleInputChange}
+                    className="h-11 rounded-xl border-slate-200 bg-slate-50 pl-10 text-sm focus-visible:ring-cyan-400 dark:border-white/10 dark:bg-white/5"
                   />
                 </div>
               </div>
 
               {/* Email */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700 dark:text-gray-300">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                   Email
                 </label>
-
                 <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-
+                  <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <Input
                     type="email"
-                    placeholder="Enter your email"
-                    className="h-12 rounded-2xl border-black/10 bg-black/5 pl-11 dark:border-white/10 dark:bg-white/5"
                     name="email"
+                    placeholder="you@example.com"
                     value={data.email}
                     onChange={handleInputChange}
+                    className="h-11 rounded-xl border-slate-200 bg-slate-50 pl-10 text-sm focus-visible:ring-cyan-400 dark:border-white/10 dark:bg-white/5"
                   />
                 </div>
               </div>
 
               {/* Password */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700 dark:text-gray-300">
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                   Password
                 </label>
-
                 <div className="relative">
-                  <LockKeyhole className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-
+                  <LockKeyhole className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <Input
-                    type="password"
-                    placeholder="Create a password"
-                    className="h-12 rounded-2xl border-black/10 bg-black/5 pl-11 dark:border-white/10 dark:bg-white/5"
+                    type={showPassword ? "text" : "password"}
                     name="password"
+                    placeholder="Min. 6 characters"
                     value={data.password}
                     onChange={handleInputChange}
+                    className="h-11 rounded-xl border-slate-200 bg-slate-50 pl-10 pr-10 text-sm focus-visible:ring-cyan-400 dark:border-white/10 dark:bg-white/5"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
                 </div>
               </div>
 
-              {/* Signup Button */}
+              {/* Submit */}
               <Button
-                className="h-12 w-full rounded-2xl bg-cyan-400 text-base font-semibold text-black hover:bg-cyan-300"
+                disabled={loading}
+                className="h-11 w-full cursor-pointer rounded-xl bg-cyan-400 text-sm font-bold text-black shadow-md shadow-cyan-400/20 transition-all hover:bg-cyan-300 hover:shadow-lg hover:shadow-cyan-400/30 disabled:opacity-60"
                 type="submit"
               >
-                Create Account
-                <ArrowRight className="ml-2 h-4 w-4" />
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <Spinner /> Creating…
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    Create Account <ArrowRight size={16} />
+                  </span>
+                )}
               </Button>
 
               {/* Divider */}
-              <div className="relative flex items-center py-2">
-                <div className="flex-1 border-t border-black/10 dark:border-white/10" />
-
-                <span className="px-3 text-sm text-slate-500 dark:text-gray-400">
-                  OR
-                </span>
-
-                <div className="flex-1 border-t border-black/10 dark:border-white/10" />
+              <div className="flex items-center gap-3">
+                <div className="flex-1 border-t border-slate-200 dark:border-white/10" />
+                <span className="text-xs font-medium text-slate-400">OR</span>
+                <div className="flex-1 border-t border-slate-200 dark:border-white/10" />
               </div>
 
-              {/* Google Button */}
               <OAuth2Buttons />
             </form>
+          </div>
 
-            {/* Bottom Text */}
-            <p className="mt-8 text-center text-sm text-slate-600 dark:text-gray-400">
-              Already have an account?{" "}
-              <span className="cursor-pointer font-semibold text-cyan-500 hover:text-cyan-400">
-                Login
-              </span>
-            </p>
-          </CardContent>
-        </Card>
+          <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
+            Already have an account?{" "}
+            <NavLink
+              to="/login"
+              className="font-semibold text-cyan-500 hover:text-cyan-400 hover:underline"
+            >
+              Sign in
+            </NavLink>
+          </p>
+        </div>
       </div>
     </div>
   );
