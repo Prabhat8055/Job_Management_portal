@@ -41,7 +41,7 @@ const Navbar: React.FC = () => {
           : "top-4 border-white/40 bg-white/70 shadow-md dark:border-white/10 dark:bg-black/40"
       } backdrop-blur-xl`}
     >
-      <div className="flex h-[60px] items-center justify-between px-5 md:px-8">
+      <div className="flex h-15 items-center justify-between px-5 md:px-8">
         {/* Logo */}
         <NavLink to="/" className="flex items-center gap-2.5">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-400 shadow-md shadow-cyan-400/30 transition hover:scale-105">

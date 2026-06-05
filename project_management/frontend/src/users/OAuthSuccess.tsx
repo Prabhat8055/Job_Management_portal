@@ -23,7 +23,7 @@ const OAuthSuccess = () => {
   }, [navigate, changeLocalLoginData]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-gradient-to-br from-slate-100 via-white to-slate-200 dark:from-[#060816] dark:via-[#0B0F19] dark:to-[#111827]">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-linear-to-br from-slate-100 via-white to-slate-200 dark:from-[#060816] dark:via-[#0B0F19] dark:to-[#111827]">
       <div className="h-10 w-10 animate-spin rounded-full border-4 border-cyan-400 border-t-transparent" />
       <p className="text-sm font-medium text-slate-500 dark:text-gray-400">
         Signing you in…

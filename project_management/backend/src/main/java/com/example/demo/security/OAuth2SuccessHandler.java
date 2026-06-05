@@ -6,6 +6,7 @@ import java.util.UUID;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -30,6 +31,14 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(OAuth2SuccessHandler.class);
 
+	@Value("${app.cors.auth.frontend.success-redirect}")
+	private String successRedirectUrl;
+
+	@Value("${app.cors.auth.frontend.failure-redirect}")
+	private String failureRedirectUrl;
+	
+	
+	
 	@Autowired
 	UserRepository userRepo;
 	@Autowired
@@ -55,34 +64,56 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 			registrationId = token.getAuthorizedClientRegistrationId();
 		}
 
-		UserModel user;
-		switch (registrationId) {
-		case "google" -> {
+		UserModel user =null;
+//		switch (registrationId) {
+//		case "google" -> {
+//
+//			String googleId = oAuth2User.getAttributes().getOrDefault("sub", "").toString();
+//			String email = oAuth2User.getAttributes().getOrDefault("email", "").toString();
+//			String name = oAuth2User.getAttributes().getOrDefault("name", "").toString();
+//			String picture = oAuth2User.getAttributes().getOrDefault("picture", "").toString();
+//
+//			user = new UserModel();
+//			user.setEmail(email);
+//			user.setName(name);
+//			user.setEnable(true);
+//			user.setImage(picture);
+//			user.setProvider(Provider.GOOGLE);
+//
+//			userRepo.findByEmail(email).ifPresentOrElse(user1 -> {
+//				logger.info("User is there in Database");
+//				logger.info(user1.toString());
+//			}, () -> {
+//				userRepo.save(user);
+//			});
+//		}
+//		default -> {
+//			throw new RuntimeException("Invalid registration Id");
+//		}
+//
+//		}
+		
+	    if ("google".equals(registrationId)) {
+	        String email   = oAuth2User.getAttributes().getOrDefault("email",   "").toString();
+	        String name    = oAuth2User.getAttributes().getOrDefault("name",    "").toString();
+	        String picture = oAuth2User.getAttributes().getOrDefault("picture", "").toString();
 
-			String googleId = oAuth2User.getAttributes().getOrDefault("sub", "").toString();
-			String email = oAuth2User.getAttributes().getOrDefault("email", "").toString();
-			String name = oAuth2User.getAttributes().getOrDefault("name", "").toString();
-			String picture = oAuth2User.getAttributes().getOrDefault("picture", "").toString();
-
-			user = new UserModel();
-			user.setEmail(email);
-			user.setName(name);
-			user.setEnable(true);
-			user.setImage(picture);
-			user.setProvider(Provider.GOOGLE);
-
-			userRepo.findByEmail(email).ifPresentOrElse(user1 -> {
-				logger.info("User is there in Database");
-				logger.info(user1.toString());
-			}, () -> {
-				userRepo.save(user);
-			});
-		}
-		default -> {
-			throw new RuntimeException("Invalid registration Id");
-		}
-
-		}
+	        // ✅ orElseGet — always returns the saved/existing entity with a real DB id
+	        user = userRepo.findByEmail(email).orElseGet(() -> {
+	            UserModel newUser = new UserModel();
+	            newUser.setEmail(email);
+	            newUser.setName(name);
+	            newUser.setEnable(true);
+	            newUser.setImage(picture);
+	            newUser.setProvider(Provider.GOOGLE);
+	            return userRepo.save(newUser);
+	        });
+	    }
+		
+		 if (user == null) {
+		        response.sendRedirect(failureRedirectUrl);
+		        return;
+		    }
 
 		// creating a refresh token so that new access token can be generated
 		String jti = UUID.randomUUID().toString();
@@ -101,7 +132,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
 
 		
-		response.getWriter().write("Login SuccessFul");
+//		response.getWriter().write("Login SuccessFul");
+		response.sendRedirect(successRedirectUrl);
 
 	}
 
