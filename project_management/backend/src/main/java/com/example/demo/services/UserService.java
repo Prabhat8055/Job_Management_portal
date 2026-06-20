@@ -6,15 +6,21 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.config.AppConstants;
 import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.models.Provider;
+import com.example.demo.models.Role;
 import com.example.demo.models.UserModel;
+import com.example.demo.repository.RoleRepository;
 import com.example.demo.repository.UserRepository;
 
 @Service
 public class UserService {
 	@Autowired
 	UserRepository userRepository;
+	
+	@Autowired
+	RoleRepository roleRepo;
 
 	// create new User
 	public UserModel createUser(UserModel user) {
@@ -27,6 +33,11 @@ public class UserService {
 		}
 
 		user.setProvider(user.getProvider() != null ? user.getProvider() : Provider.LOCAL);
+		
+		//assign roles here
+		//assign the default role
+		Role role  = roleRepo.findByName("ROLE_"+AppConstants.GUEST_ROLE).orElse(null);
+		user.getRoles().add(role);
 
 		return userRepository.save(user);
 	}

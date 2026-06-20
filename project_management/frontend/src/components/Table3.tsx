@@ -64,7 +64,7 @@ const VirtuosoComponents: TableComponents<RowData> = {
 
 const Table3: React.FC<Table3Props> = ({ rows, selectedId, setSelectedId }) => {
   return (
-    <div className="flex h-[500px] flex-col overflow-hidden rounded-2xl md:h-[600px]">
+    <div className="flex h-125 flex-col overflow-hidden rounded-2xl md:h-150">
       <TableVirtuoso
         data={rows}
         components={VirtuosoComponents}
@@ -92,7 +92,7 @@ const Table3: React.FC<Table3Props> = ({ rows, selectedId, setSelectedId }) => {
                   className={`cursor-pointer border-b px-4 py-3 text-sm transition-colors ${
                     isSelected
                       ? "border-cyan-100 bg-cyan-50/80 dark:border-cyan-500/10 dark:bg-cyan-500/5"
-                      : "border-slate-100 hover:bg-slate-50 dark:border-white/5 dark:hover:bg-white/[0.03]"
+                      : "border-slate-100 hover:bg-slate-50 dark:border-white/5 dark:hover:bg-white/3"
                   }`}
                 >
                   {col.key === "status" ? (

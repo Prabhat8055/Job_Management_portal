@@ -114,7 +114,12 @@
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>3.0.0</version>
 		</dependency>
-
+		
+		<!--Jackson-->
+		<dependency>
+		    <groupId>com.fasterxml.jackson.datatype</groupId>
+		    <artifactId>jackson-datatype-jsr310</artifactId>
+		</dependency>
 		<!-- sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

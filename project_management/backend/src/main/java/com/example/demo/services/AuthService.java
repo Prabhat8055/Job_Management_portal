@@ -4,7 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.config.AppConstants;
 import com.example.demo.models.UserModel;
+import com.example.demo.repository.RoleRepository;
 
 @Service
 public class AuthService {

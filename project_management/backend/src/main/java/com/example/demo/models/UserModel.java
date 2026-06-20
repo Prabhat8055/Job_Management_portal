@@ -134,7 +134,7 @@ public class UserModel implements UserDetails {
 		return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).toList();
 	}
 
-	@Override  
+	@Override   
 	public String getUsername() {
 		// TODO Auto-generated method stub
 		return this.email;

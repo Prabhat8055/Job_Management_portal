@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -23,9 +25,14 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.example.demo.dto.ApiError;
 import com.example.demo.security.JwtAuthenticationFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import jakarta.servlet.http.HttpServletResponse;
 @Configuration
 public class SecurityConfig {
 
@@ -34,13 +41,18 @@ public class SecurityConfig {
 
 	@Autowired
 	AuthenticationSuccessHandler successHandler;
+	
 
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) {
 
 		http.csrf(csrf -> csrf.disable()).cors(Customizer.withDefaults())
 				.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.authorizeHttpRequests(auth -> auth.requestMatchers(AppConstants.AUTH_PUBLIC_URLS).permitAll() // 🔥																			// important
+				.authorizeHttpRequests(auth -> auth
+						.requestMatchers(AppConstants.AUTH_PUBLIC_URLS).permitAll()
+						.requestMatchers(HttpMethod.GET).hasRole(AppConstants.GUEST_ROLE)
+						.requestMatchers("/api/v1/users/**").hasRole(AppConstants.ADMIN_ROLE) // no need to pass ROLES_
+						// important
 						.anyRequest().authenticated())
 				// OAuth2 configuration
 				.oauth2Login(oauth2 -> oauth2.successHandler(successHandler).failureHandler(null))
@@ -56,8 +68,24 @@ public class SecurityConfig {
 					// send errorMap to json
 					// using this mapper we can convert our map to String
 					var objectMapper = new ObjectMapper();
+					objectMapper.registerModule(new JavaTimeModule());
+					objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 					response.getWriter().write(objectMapper.writeValueAsString(errorMap));
-				})).addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+				})
+						.accessDeniedHandler((request , response ,e)->{
+							var objectMapper = new ObjectMapper();
+							response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+						    response.setContentType("application/json");
+
+						    Map<String, Object> error = Map.of(
+						        "status", 403,
+						        "error", "Forbidden",
+						        "message", e.getMessage()
+						    );
+
+						    objectMapper.writeValue(response.getWriter(), error);
+							})
+						).addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}
